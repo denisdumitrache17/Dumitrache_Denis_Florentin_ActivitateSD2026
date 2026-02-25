@@ -42,7 +42,7 @@ void dezalocare(struct Adidas a){
 
 	free(a.marca);
 	free(a.model);
-	printf("memorie dezalocata");
+
 
 };
 
