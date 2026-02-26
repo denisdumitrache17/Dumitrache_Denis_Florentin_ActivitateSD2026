@@ -62,9 +62,6 @@ void dezalocare(struct Film** vector, int* nrElemente) {
 }
 
 void copiazaAnumiteElemente(struct Film* vector, char nrElemente, float bugetMaxim, struct Film** vectorNou, int* dimensiune) {
-	//parametrul prag poate fi modificat in functie de 
-	// tipul atributului ales pentru a indeplini o conditie
-	//este creat un nou vector cu elementele care indeplinesc acea conditie
 	*dimensiune = 0;
 	for (int i = 0; i < nrElemente; ++i)
 	{
@@ -87,10 +84,16 @@ void copiazaAnumiteElemente(struct Film* vector, char nrElemente, float bugetMax
 }
 
 struct Film getPrimulElementConditionat(struct Film* vector, int nrElemente, const char* conditie) {
-	//trebuie cautat elementul care indeplineste o conditie
-	//dupa atributul de tip char*. Acesta este returnat.
 	struct Film s;
 	s.id = 1;
+	for (int i = 0; i < nrElemente; i++)
+	{
+		if (strcmp(vector[i].denumire, conditie)==0)
+		{
+			return vector[i];
+		}
+
+	}
 
 	return s;
 }
@@ -121,7 +124,10 @@ int main() {
 	float prag = 20;
 	int dimensiuneFilmeIeftine = 0;
 	copiazaAnumiteElemente(filme, nrFilme, prag, &filmeIeftine, &dimensiuneFilmeIeftine);
-	afisareVector(filmeIeftine, dimensiuneFilmeIeftine);
+	afisareVector(filmeIeftine, dimensiuneFilmeIeftine); 
+
+	getPrimulElementConditionat(filme,nrFilme,"The social network");
+	afisare(getPrimulElementConditionat(filme, nrFilme, "The social network"));
 
 	return 0;
 }
