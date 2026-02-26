@@ -20,7 +20,7 @@ struct Film initializare(int id, int durata, char* nume, float buget, char varst
 	return s;
 }
 
-struct Film copyFilm(struct Film s){
+struct Film copyFilm(struct Film s) {
 	return initializare(s.id, s.durata, s.denumire, s.buget, s.varstaMinima);
 }
 
@@ -42,8 +42,8 @@ void afisareVector(struct Film* vector, int nrElemente) {
 }
 
 struct Film* copiazaPrimeleNElemente(struct Film* vector, int nrElemente, int nrElementeCopiate) {
-	
-	struct Film *vectorNou=malloc(nrElementeCopiate*sizeof(struct Film));
+
+	struct Film* vectorNou = malloc(nrElementeCopiate * sizeof(struct Film));
 	for (int i = 0; i < nrElementeCopiate; i++)
 	{
 		vectorNou[i] = copyFilm(vector[i]);
@@ -75,15 +75,15 @@ void copiazaAnumiteElemente(struct Film* vector, char nrElemente, float bugetMax
 	}
 	*vectorNou = malloc((*dimensiune) * sizeof(struct Film));
 	int k = 0;
-	for (int i = 0; i < nrElemente; i++){
+	for (int i = 0; i < nrElemente; i++) {
 		if (vector[i].buget < bugetMaxim)
 		{
 			(*vectorNou)[k] = copyFilm(vector[i]);
-			
+			k++;
 		}
 	}
 
-	
+
 }
 
 struct Film getPrimulElementConditionat(struct Film* vector, int nrElemente, const char* conditie) {
@@ -94,11 +94,11 @@ struct Film getPrimulElementConditionat(struct Film* vector, int nrElemente, con
 
 	return s;
 }
-	
+
 
 
 int main() {
-	struct Film f = initializare(1, 120, "Dune",20.6,14);
+	struct Film f = initializare(1, 120, "Dune", 20.6, 14);
 	int nrFilme = 3;
 	struct Film* filme = malloc(nrFilme * sizeof(struct Film));
 	afisare(f);
@@ -113,15 +113,15 @@ int main() {
 	printf("Filme vector nou\n");
 	afisareVector(vectorNou, nrFilmeCopiate);
 	printf("Final filme noi\n");
-	dezalocare(&vectorNou,&nrFilmeCopiate);
+	dezalocare(&vectorNou, &nrFilmeCopiate);
 	afisareVector(vectorNou, nrFilmeCopiate);
 
 	struct Film* filmeIeftine;
 
 	float prag = 20;
-	int dimensiuneFilmeIeftine=0;
-	copiazaAnumiteElemente(filme,nrFilme, prag, &filmeIeftine, &dimensiuneFilmeIeftine);
-	afisareVector(filmeIeftine,dimensiuneFilmeIeftine);
+	int dimensiuneFilmeIeftine = 0;
+	copiazaAnumiteElemente(filme, nrFilme, prag, &filmeIeftine, &dimensiuneFilmeIeftine);
+	afisareVector(filmeIeftine, dimensiuneFilmeIeftine);
 
 	return 0;
 }
