@@ -129,5 +129,8 @@ int main() {
 	getPrimulElementConditionat(filme,nrFilme,"The social network");
 	afisare(getPrimulElementConditionat(filme, nrFilme, "The social network"));
 
+	dezalocare(&filme, &nrFilme);
+	dezalocare(&filmeIeftine, &nrFilme);
+
 	return 0;
 }
