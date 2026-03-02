@@ -41,7 +41,7 @@ void afisareVector(struct Telefon* vector, int nrElemente) {
 }
 
 struct Telefon* copiazaPrimeleNElemente(struct Telefon* vector, int nrElemente, int nrElementeCopiate) {
-	struct Telefon *vectorNou=NULL;
+	struct Telefon* vectorNou = malloc(nrElementeCopiate*sizeof(struct Telefon));
 	for (int i = 0; i < nrElementeCopiate; i++)
 	{
 		vectorNou[i] = functieCopiere(vector[i]);
@@ -50,7 +50,11 @@ struct Telefon* copiazaPrimeleNElemente(struct Telefon* vector, int nrElemente, 
 }
 
 void dezalocare(struct Telefon** vector, int* nrElemente) {
-	//dezalocam elementele din vector si vectorul
+	for (int i = 0; i < nrElemente; i++)
+	{
+		free((*vector)[i].denumire);
+	}
+	free(*vector);
 }
 
 void copiazaAnumiteElemente(struct Telefon* vector, char nrElemente, float prag, struct Telefon** vectorNou, int* dimensiune) {
@@ -64,10 +68,17 @@ struct Telefon getPrimulElementConditionat(struct Telefon* vector, int nrElement
 	//dupa atributul de tip char*. Acesta este returnat.
 	struct Telefon s;
 	s.id = 1;
+	for (int i = 0; i < nrElemente; ++i) {
+		if (strcmp(vector[i].denumire, conditie)==0)
+		{
+			s = functieCopiere(vector[i]);
+			return s;
+		}
+	}
 
 	return s;
 }
-	
+
 
 
 int main() {
@@ -83,6 +94,6 @@ int main() {
 	printf("Final vector telefoane!\n");
 	int nrElementeCopiate = 2;
 	copiazaPrimeleNElemente(vectorTelefoane, nrElemente, nrElementeCopiate);
-
+	dezalocare(&vectorTelefoane, nrElemente);
 	return 0;
 }
