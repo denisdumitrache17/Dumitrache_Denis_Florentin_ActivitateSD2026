@@ -30,7 +30,7 @@ Masina citireMasinaDinFisier(FILE* file) {
 	aux = strtok(buffer, sep);
 	m1.id = atoi(aux);
 	m1.nrUsi = atoi(strtok(NULL, sep));
-	m1.pret= atof(strtok(NULL, sep));
+	m1.pret = atof(strtok(NULL, sep));
 	aux = strtok(NULL, sep);
 	m1.model = malloc(strlen(aux) + 1);
 	strcpy_s(m1.model, strlen(aux) + 1, aux);
@@ -53,10 +53,10 @@ void afisareMasina(Masina masina) {
 }
 
 void afisareListaMasini(Nod* cap) {
-	while (cap){
-		afisareMasina(cap->info);
+	while (cap) {
+		afisareMasina(cap->info); //sageata pt ca fac dereferentiere si accesare; " -> " = dereferentiere + accesare
 		cap = cap->next;
-	}
+ 	}
 }
 
 void adaugaMasinaInLista(Nod** cap, Masina masinaNoua) {
@@ -78,13 +78,16 @@ void adaugaMasinaInLista(Nod** cap, Masina masinaNoua) {
 	}
 }
 
-void adaugaLaInceputInLista(/*lista de masini*/ Masina masinaNoua) {
-	//adauga la inceputul listei o noua masina pe care o primim ca parametru
+void adaugaLaInceputInLista(Nod** cap, Masina masinaNoua) {
+	Nod* nou = (Nod*)malloc(sizeof(Nod));
+	nou->info = masinaNoua;
+	nou->next = *cap;
+	*cap = nou;
 }
 
 void* citireListaMasiniDinFisier(const char* numeFisier) {
 	Nod* cap = NULL;
-	FILE* file = fopen(numeFisier,"r");
+	FILE* file = fopen(numeFisier, "r");
 	while (!feof(file)) {
 		adaugaMasinaInLista(&cap, citireMasinaDinFisier(file));
 	}
@@ -103,9 +106,24 @@ void dezalocareListaMasini(Nod** nod) {
 
 }
 
-float calculeazaPretMediu(/*lista de masini*/) {
+float calculeazaPretMediu(Nod** nod) {
 	//calculeaza pretul mediu al masinilor din lista.
-	return 0;
+	Nod* temp = NULL;
+	temp = (Nod*)malloc(sizeof(Nod));
+	temp = *nod;
+	float medie = 0;
+	int nrMedie = 0;
+	while (temp)
+	{
+		medie = medie + (temp)->info.pret;
+		temp = (temp)->next;
+		nrMedie++;
+	}
+	if (nrMedie > 0)
+	{
+		return medie / nrMedie;
+	}
+	dezalocareListaMasini(&temp);
 }
 
 void stergeMasiniDinSeria(/*lista masini*/ char serieCautata) {
@@ -113,7 +131,7 @@ void stergeMasiniDinSeria(/*lista masini*/ char serieCautata) {
 	//tratati situatia ca masina se afla si pe prima pozitie, si pe ultima pozitie
 }
 
-float calculeazaPretulMasinilorUnuiSofer(/*lista masini*/ const char* numeSofer) {
+float calculeazaPretulMasinilorUnuiSofer(Nod** nod ,const char* numeSofer) {
 	//calculeaza pretul tuturor masinilor unui sofer.
 	return 0;
 }
@@ -122,6 +140,7 @@ int main() {
 
 	Nod* cap = citireListaMasiniDinFisier("masini.txt");
 	afisareListaMasini(cap);
+	printf("pret mediu:%f", calculeazaPretMediu(&cap));
 	dezalocareListaMasini(&cap);
 	return 0;
 }
