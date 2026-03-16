@@ -119,28 +119,57 @@ float calculeazaPretMediu(Nod** nod) {
 		temp = (temp)->next;
 		nrMedie++;
 	}
+
+	dezalocareListaMasini(&temp);
+
 	if (nrMedie > 0)
 	{
 		return medie / nrMedie;
 	}
-	dezalocareListaMasini(&temp);
+	else
+		return 0;
 }
 
 void stergeMasiniDinSeria(/*lista masini*/ char serieCautata) {
 	//sterge toate masinile din lista care au seria primita ca parametru.
 	//tratati situatia ca masina se afla si pe prima pozitie, si pe ultima pozitie
+
 }
 
 float calculeazaPretulMasinilorUnuiSofer(Nod** nod ,const char* numeSofer) {
 	//calculeaza pretul tuturor masinilor unui sofer.
-	return 0;
+	Nod* temp = NULL;
+	temp = (Nod*)malloc(sizeof(Nod));
+	temp = *nod;
+	float medie = 0;
+	int nrMedie = 0;
+	while (temp)
+	{
+		if (!(strcmp(temp->info.numeSofer, numeSofer)))
+		{
+			medie = medie + (temp)->info.pret;
+			temp = (temp)->next;
+			nrMedie++;
+		}
+		else
+			temp = temp->next;
+	}
+	dezalocareListaMasini(&temp);
+	if (nrMedie > 0)
+	{
+		return medie / nrMedie;
+	}
+	else
+		return 0;
+	
 }
 
 int main() {
 
 	Nod* cap = citireListaMasiniDinFisier("masini.txt");
 	afisareListaMasini(cap);
-	printf("pret mediu:%f", calculeazaPretMediu(&cap));
+	printf("pret mediu:%f\n", calculeazaPretMediu(&cap));
+	printf("pret mediu sofer:%f\n", calculeazaPretulMasinilorUnuiSofer(&cap,"Ionescu"));
 	dezalocareListaMasini(&cap);
 	return 0;
 }
