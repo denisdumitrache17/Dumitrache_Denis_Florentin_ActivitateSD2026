@@ -4,6 +4,7 @@
 #include <string.h>
 
 //lista simplu inlantuita este o structura de date, liniara, omogena cu acces secvential
+// " -> " = dereferentiere + accesare
 
 struct StructuraMasina {
 	int id;
@@ -54,7 +55,7 @@ void afisareMasina(Masina masina) {
 
 void afisareListaMasini(Nod* cap) {
 	while (cap) {
-		afisareMasina(cap->info); //sageata pt ca fac dereferentiere si accesare; " -> " = dereferentiere + accesare
+		afisareMasina(cap->info); //sageata pt ca fac dereferentiere si accesare;
 		cap = cap->next;
  	}
 }
@@ -130,9 +131,52 @@ float calculeazaPretMediu(Nod** nod) {
 		return 0;
 }
 
-void stergeMasiniDinSeria(/*lista masini*/ char serieCautata) {
+
+
+void stergeMasiniDinSeria(Nod** cap, char serieCautata) {
 	//sterge toate masinile din lista care au seria primita ca parametru.
 	//tratati situatia ca masina se afla si pe prima pozitie, si pe ultima pozitie
+	while ((*cap) && (*cap)->info.serie == serieCautata)
+	{
+		Nod* aux = *cap;
+		(*cap) = aux->next;
+
+		if (aux->info.numeSofer) {
+			free(aux->info.numeSofer);
+		}
+
+		if (aux->info.model) {
+			free(aux->info.model);
+		}
+
+		free(aux);
+	}
+
+	if ((*cap)) {
+		Nod* p = *cap;
+		while (p) {
+
+			while (p->next && p->next->info.serie != serieCautata) {
+				p = p->next;
+			}
+			if (p->next) {
+				Nod* aux = p->next;
+				p->next = aux->next;
+
+				if (aux->info.numeSofer) {
+					free(aux->info.numeSofer);
+				}
+				if (aux->info.model) {
+					free(aux->info.model);
+				}
+
+				free(aux);
+			}
+			else {
+				p = NULL;
+			}
+		}
+	}
 
 }
 
@@ -170,6 +214,12 @@ int main() {
 	afisareListaMasini(cap);
 	printf("pret mediu:%f\n", calculeazaPretMediu(&cap));
 	printf("pret mediu sofer:%f\n", calculeazaPretulMasinilorUnuiSofer(&cap,"Ionescu"));
+	printf("Stergere masini cu seria A:\n");
+	stergeMasiniDinSeria(&cap, 'A');
+	afisareListaMasini(cap);
+	printf("Stergere masini cu seria B:\n");
+	stergeMasiniDinSeria(&cap, 'B');
+	afisareListaMasini(cap);
 	dezalocareListaMasini(&cap);
 	return 0;
 }
