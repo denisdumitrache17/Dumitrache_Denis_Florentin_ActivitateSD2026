@@ -27,6 +27,11 @@ typedef struct ListaDubla ListaDubla;
 
 int contorID = 1;
 
+void alocaMemorieVariabilaChar(char** variabila, char* memorieDeAlocat) {
+	(*variabila) = malloc((strlen(memorieDeAlocat) + 1) * sizeof(char));
+	strcpy_s(*variabila, (strlen(memorieDeAlocat) + 1), memorieDeAlocat);
+}
+
 struct Televizor initializareTelevizor(const char* producator, const char* serieProducator, int nrButoane) {
 	struct Televizor s;
 	s.id = contorID;
@@ -65,10 +70,12 @@ void modificaAtribut(struct Televizor* s, const char* producatorNou) {
 }
 
 void dezalocare(struct Televizor *s) {
-	free(s->producator);
-	free(s->serieProducator);
-	s->producator = NULL;
-	s->serieProducator = NULL;
+	if (s) {
+		free(s->producator);
+		free(s->serieProducator);
+		s->producator = NULL;
+		s->serieProducator = NULL;
+	}
 }
 
 void dezalocareVector(Televizor** vector, int* nrElemente){
@@ -98,10 +105,13 @@ void afisareVector(struct Televizor* vector, int nrElemente) {
 void copiazaElementStructura(Televizor* elementCopie, Televizor elementDeCopiat){
 	elementCopie->id = contorID; contorID++;
 	elementCopie->nrButoane = elementDeCopiat.nrButoane;
-	elementCopie->producator = malloc(sizeof(char) * (strlen(elementDeCopiat.producator) + 1));
-	strcpy_s(elementCopie->producator, strlen(elementDeCopiat.producator) + 1, elementDeCopiat.producator);
-	elementCopie->serieProducator = malloc(sizeof(char) * (strlen(elementDeCopiat.serieProducator) + 1));
-	strcpy_s(elementCopie->serieProducator, strlen(elementDeCopiat.serieProducator) + 1, elementDeCopiat.serieProducator);
+	//elementCopie->producator = malloc(sizeof(char) * (strlen(elementDeCopiat.producator) + 1));
+	//strcpy_s(elementCopie->producator, strlen(elementDeCopiat.producator) + 1, elementDeCopiat.producator);
+	//elementCopie->serieProducator = malloc(sizeof(char) * (strlen(elementDeCopiat.serieProducator) + 1));
+	//strcpy_s(elementCopie->serieProducator, strlen(elementDeCopiat.serieProducator) + 1, elementDeCopiat.serieProducator);
+
+	alocaMemorieVariabilaChar(&(elementCopie->producator), (elementDeCopiat.producator));
+	alocaMemorieVariabilaChar(&(elementCopie->serieProducator), (elementDeCopiat.producator));
 }
 
 Televizor* copiazaPrimeleNElemente(Televizor* vector, int nrElemente, int nrElementeCopiate){
@@ -260,6 +270,13 @@ void initializareListaDublaNULL(ListaDubla* lista) {
 	lista->nrNoduri = 0;
 }
 
+void intializareTelevizorNULL(Televizor* televizor) {
+	televizor->id = -1;
+	televizor->nrButoane = -1;
+	televizor->producator = NULL;
+	televizor->serieProducator = NULL;
+}
+
 ListaDubla* citireListaDublaDinFisier(const char* numeFisier) {
 	FILE* file = fopen(numeFisier, "r");
 	ListaDubla lista;
@@ -285,6 +302,19 @@ void dezalocareListaDubla(ListaDubla* lista) {
 	initializareListaDublaNULL(lista);
 }
 
+void dezalocareListaSimpla(Nod** cap) {
+	Nod* p = *cap;
+	while (p)
+	{
+		Nod* temp = p;
+		p = p->next;
+		dezalocare(&(p->info));
+
+		free(temp);
+	}
+	*cap = NULL;
+}
+
 int calculeazaNrButoaneMediu(ListaDubla lista) {
 	if (lista.nrNoduri)
 	{
@@ -305,15 +335,12 @@ void stergereTelevizorDupaId(ListaDubla* lista, int id) {
 		return;
 	}
 	Nod* p = lista->first;
-	
 	while (p && p->info.id!=id){
 		p = p->next;
 	}
-
 	if (p == NULL) {
 		return;
 	}
-
 	//avem ce sterge:
 	if (p->prev == NULL) {  // verificam daca suntem pe primul nod, daca se indeplineste conditia if-ului inseamna ca suntem pe primul nod
 		lista->first = p->next;
@@ -324,22 +351,15 @@ void stergereTelevizorDupaId(ListaDubla* lista, int id) {
 	else {
 		p->prev->next = p->next; // daca nu se indeplineste conditia din if-ul de mai sus, inseamna ca nodul nostru pe care il stergem nu este primul din lista
 	}
-
 	if (p->next) { // verificam daca exista urmatorul nod, iar daca exista inseamna ca nu suntem la finalul listei si ii dam urmatorului nod adresa nodului din urma (cel din fata noastra primeste adresa celui din spate, pt ca cel pe care suntem acum o sa dispara)
 		p->next->prev = p->prev; 
 	}
 	else { //daca nu exista urmatorul nod, marcam nodul din spate ca fiind finalul listei
 		lista->last = p->prev;
 	}
-
 	dezalocare(&(p->info));
 	free(p);
 	lista->nrNoduri--;
-}
-
-void alocaMemorieVariabilaChar(char** variabila, char* memorieDeAlocat) {
-	(*variabila) = malloc((strlen(memorieDeAlocat) + 1) * sizeof(char));
-	strcpy_s(*variabila, (strlen(memorieDeAlocat) + 1), memorieDeAlocat);
 }
 
 
@@ -355,6 +375,163 @@ Televizor getNodTelevizorCuCeleMaiMulteButoane(ListaDubla lista) {
 		p = p->next;
 	}
 	return max->info;
+}
+
+//structura HashTable
+struct HashTable {
+	int dimensiune;
+	Nod** tabela;
+};
+typedef struct HashTable HashTable;
+
+
+void afisareListaSimpla(Nod* cap) {
+	while (cap) {
+		afisareTelevizor(cap->info);
+		cap = cap->next;
+	}
+}
+
+void adaugaTelevizorInListaSimpla(Nod* cap, Televizor televizor) {
+	Nod* p = cap;
+	while (p->next) {
+		p = p->next;
+	}
+	Nod* nou = malloc(sizeof(Nod));
+	nou->info = televizor;
+	nou->next = NULL;
+	p->next = nou;
+}
+
+HashTable initializareHashTable(int dimensiune) {
+	HashTable ht;
+	ht.dimensiune = dimensiune;
+	ht.tabela = (Nod**)malloc(dimensiune * sizeof(Nod*));
+	for (int i = 0; i < dimensiune; i++) {
+		ht.tabela[i] = NULL;
+	}
+	return ht;
+}
+
+int calculeazaHash(const char* producator, int dimensiune) {
+	int suma = 0;
+	for (int i = 0; i < strlen(producator); i++) {
+		suma += producator[i];
+	}
+	return suma % dimensiune;
+}
+
+void creareNodTabela(HashTable hash, Televizor televizor, int pozitie) {
+	if (pozitie >= 0 && pozitie < hash.dimensiune) {
+		hash.tabela[pozitie] = (Nod*)malloc(sizeof(Nod));
+		hash.tabela[pozitie]->info = televizor;
+		hash.tabela[pozitie]->next = NULL;
+	}
+}
+
+void inserareTelevizorInTabela(HashTable hash, Televizor televizor) {
+	int pozitie = calculeazaHash(televizor.producator, hash.dimensiune);
+	if (hash.tabela[pozitie] == NULL) {
+		creareNodTabela(hash, televizor, pozitie);
+	}
+	else {
+		adaugaTelevizorInListaSimpla(hash.tabela[pozitie], televizor);
+	}
+}
+
+HashTable citireaMasinilorDinFisierHashTable(const char* numeFisier,int dimensiune) {
+	HashTable hash = initializareHashTable(dimensiune);
+	FILE* file = fopen("televizoare.txt", "r");
+	while (!feof(file)) {
+		Televizor televizor = citireTelevizorFisier(file);
+		inserareTelevizorInTabela(hash, televizor);
+	}
+	fclose(file);
+	return hash;
+}
+
+void afisareTabelaDeMasini(HashTable ht) {
+	for (int i = 0; i < ht.dimensiune; i++)
+	{
+		if (ht.tabela[i] != NULL) {
+			printf("\nTelevizoarele de pe pozitia %d sunt:\n", i);
+			afisareListaSimpla(ht.tabela[i]);
+		}
+		else {
+			printf("\nPe pozitia %d, nu sunt televizoare \n", i);
+		}
+	}
+}
+
+void dezalocareHashTable(HashTable* ht) {
+	for (int i = 0; i < ht->dimensiune; i++) {
+		dezalocareListaSimpla(&(ht->tabela[i]));
+	}
+	free(ht->tabela);
+	ht->tabela = NULL;
+	ht->dimensiune = 0;
+}
+
+float calculeazaNrMediuButoaneLista(Nod* cap) {
+	Nod* p = cap;
+	float medieButoane = 0;
+	int contor = 0;
+	while (p) {
+		medieButoane += p->info.nrButoane;
+		contor++;
+		p = p->next;
+	}
+	if (contor > 0) {
+		return medieButoane / contor;
+	}
+	return 0;
+}
+
+float* calculeazaNrButoaneMediiPerCluster(HashTable ht, int* nrClustere) {
+	float* butoane = NULL;
+	*nrClustere = 0;
+	for (int i = 0; i < ht.dimensiune; i++) {
+		if (ht.tabela[i] != NULL) {
+			(*nrClustere)++;
+		}
+	}
+
+	butoane = malloc(sizeof(float) * (*nrClustere));
+	int contor = 0;
+	for (int i = 0; i < ht.dimensiune; i++) {
+		if (ht.tabela[i]) {
+			butoane[contor] = calculeazaNrMediuButoaneLista(ht.tabela[i]);
+			contor++;
+		}
+	}
+
+	return butoane;
+}
+
+Televizor getTelevizorDinLista(Nod* cap, const char* producator) {
+	while (cap && strcmp(cap->info.producator,producator)) {
+		cap = cap->next;
+	}
+
+	if (cap) {
+		Televizor t;
+		intializareTelevizorNULL(&t);
+		copiazaElementStructura(&t, cap->info);
+		return t;
+	}
+
+	return;
+}
+
+Televizor getTelevizorDupaProducator(HashTable ht, const char* producator) {
+	Televizor t;
+	intializareTelevizorNULL(&t);
+	int pozitie = calculeazaHash(producator, ht.dimensiune);
+	if (pozitie >= 0 && pozitie < ht.dimensiune) {
+		return getTelevizorDinLista(ht.tabela[pozitie], producator);
+	}
+
+	return t;
 }
 
 int main() {
@@ -415,6 +592,19 @@ int main() {
 	printf("\nTelevizor complet:\n");
 	afisareTelevizor(getNodTelevizorCuCeleMaiMulteButoane(lista));
 
+	HashTable ht = citireaMasinilorDinFisierHashTable("televizoare.txt",5);
+	afisareTabelaDeMasini(ht);
+	int nrClustere = 0;
+	float* butoane = calculeazaNrButoaneMediiPerCluster(ht, &nrClustere);
+	for (int i = 0; i < nrClustere; i++) {
+		printf("\n%.2f  \n", butoane[i]);
+	}
+	printf("\nTelevizor dupa producator:\n");
+	Televizor t3 = getTelevizorDupaProducator(ht, "LG");
+	afisareTelevizor(t3);
+	dezalocare(&t3);
+
+	dezalocareHashTable(&ht);
 	dezalocare(&t);
 	dezalocareVector(&televizoare, &nrTelevizoare);
 	dezalocareVector(&vectorNou, &primeleNElemente);
