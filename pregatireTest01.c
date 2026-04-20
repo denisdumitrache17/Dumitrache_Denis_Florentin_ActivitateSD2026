@@ -513,9 +513,10 @@ Televizor getTelevizorDinLista(Nod* cap, const char* producator) {
 		cap = cap->next;
 	}
 
-	if (cap) {
-		Televizor t;
+	Televizor t;
 		intializareTelevizorNULL(&t);
+	
+	if (cap) {
 		copiazaElementStructura(&t, cap->info);
 		return t;
 	}
